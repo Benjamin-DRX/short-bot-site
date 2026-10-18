@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="fr">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Short Bot : connexion TikTok</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<h1>Connexion TikTok</h1>
+<div id="debut">
+<p>Connecte-toi d'abord sur tiktok.com avec le compte à relier (FR ou EN), puis colle la clé client de l'appli.</p>
+<p><input id="cle" placeholder="Client key" size="30"> <button id="go">Se connecter à TikTok</button></p>
+</div>
+<div id="fin" hidden>
+<p>Voici le code à coller tout de suite dans GitHub (Actions &gt; Connexion TikTok &gt; Run workflow). Il expire vite.</p>
+<p><input id="code" readonly size="40"> <button id="copier">Copier</button></p>
+</div>
+<p id="erreur"></p>
+<script>
+const p = new URLSearchParams(location.search);
+const ici = location.origin + location.pathname;
+if (p.get("code")) {
+  document.getElementById("debut").hidden = true;
+  document.getElementById("fin").hidden = false;
+  document.getElementById("code").value = p.get("code");
+  document.getElementById("copier").onclick = () => navigator.clipboard.writeText(p.get("code"));
+} else if (p.get("error")) {
+  document.getElementById("erreur").textContent = "TikTok a refusé : " + p.get("error") + " " + (p.get("error_description") || "");
+}
+document.getElementById("go").onclick = () => {
+  const q = new URLSearchParams({client_key: document.getElementById("cle").value.trim(),
+    scope: "user.info.basic,video.upload", response_type: "code", redirect_uri: ici, state: Math.random().toString(36).slice(2)});
+  location.href = "https://www.tiktok.com/v2/auth/authorize/?" + q;
+};
+</script>
+</body>
+</html>
